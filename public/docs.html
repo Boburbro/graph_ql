@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo + Chat GraphQL API Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #3498db;
+            margin-top: 25px;
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .api-section {
+            margin-bottom: 40px;
+        }
+
+        .card {
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .params {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .returns {
+            color: #27ae60;
+            margin-left: 20px;
+        }
+
+        .auth-required {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .tab {
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+        .method {
+            font-weight: bold;
+            background-color: #f1f8ff;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .example {
+            margin-top: 15px;
+        }
+
+        .note {
+            background-color: #fff8dc;
+            padding: 10px 15px;
+            border-left: 4px solid #f0ad4e;
+            margin: 15px 0;
+        }
+
+        .workflow {
+            background-color: #e8f4fc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .workflow h4 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+
+        .workflow ol {
+            margin-bottom: 0;
+        }
+
+        .setup-section {
+            background-color: #e8fcf4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Todo + Chat GraphQL API Documentation</h1>
+
+    <div class="api-section">
+        <h2>Getting Started</h2>
+        <p>This API provides endpoints for managing todos and chat functionality with real-time messaging.</p>
+        <p>GraphQL Endpoint: <code>/graphql</code></p>
+        <p>Interactive Explorer: <a href="/graphql">/graphql</a></p>
+
+        <div class="note">
+            <strong>Authentication:</strong> Most endpoints require authentication using a JWT token, which should be
+            included in the Authorization header as <code>Bearer YOUR_TOKEN</code>.
+        </div>
+
+        <div class="setup-section">
+            <h3>Email Verification Setup (Gmail)</h3>
+            <p>This application supports email verification using Gmail. To set it up:</p>
+            <ol>
+                <li>Enable 2-Step Verification in your Google Account</li>
+                <li>Create an App Password for this application</li>
+                <li>Configure your .env file with Gmail credentials</li>
+            </ol>
+            <p>For detailed instructions, see the <a
+                    href="https://github.com/yourusername/todo-chat-graphql/blob/main/GMAIL_SETUP.md">Gmail Setup
+                    Guide</a>.</p>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Authentication</h2>
+
+        <div class="workflow">
+            <h4>Authentication Workflow:</h4>
+            <ol>
+                <li>Register with email (and optional username)</li>
+                <li>Receive verification code via email</li>
+                <li>Verify email with the code</li>
+                <li>Use the returned token for authenticated requests</li>
+                <li>Alternatively, login with verified email and password</li>
+            </ol>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> register</h3>
+            <p>Register a new user account and send verification code via email</p>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>email</code>: String! - Email address</li>
+                    <li><code>password</code>: String! - Password</li>
+                    <li><code>username</code>: String - Optional username</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> VerificationResult
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  register(
+    email: "john@example.com", 
+    password: "securepassword",
+    username: "johndoe"
+  ) {
+    success
+    message
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> verifyEmail</h3>
+            <p>Verify email using the code sent during registration</p>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>email</code>: String! - Email address</li>
+                    <li><code>code</code>: String! - Verification code received via email</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> AuthPayload (token and user)
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  verifyEmail(
+    email: "john@example.com", 
+    code: "123456"
+  ) {
+    token
+    user {
+      id
+      email
+      username
+      isVerified
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> resendVerificationCode</h3>
+            <p>Resend verification code if the first one expired or was lost</p>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>email</code>: String! - Email address</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> VerificationResult
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  resendVerificationCode(
+    email: "john@example.com"
+  ) {
+    success
+    message
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> login</h3>
+            <p>Login with email and password (email must be verified)</p>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>email</code>: String! - Email address</li>
+                    <li><code>password</code>: String! - Password</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> AuthPayload (token and user)
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  login(
+    email: "alice@example.com", 
+    password: "password123"
+  ) {
+    token
+    user {
+      id
+      username
+      email
+      isVerified
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Query</span> me</h3>
+            <p>Get the currently authenticated user</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="returns">
+                <strong>Returns:</strong> User or null
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  me {
+    id
+    username
+    email
+    isVerified
+    createdAt
+    todos {
+      id
+      title
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Todo Management</h2>
+
+        <div class="card">
+            <h3><span class="method">Query</span> todos</h3>
+            <p>Get all todos for the current user</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="returns">
+                <strong>Returns:</strong> [Todo]
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  todos {
+    id
+    title
+    description
+    completed
+    createdAt
+    updatedAt
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Query</span> todo</h3>
+            <p>Get a specific todo by ID</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>id</code>: ID! - The ID of the todo</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Todo
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  todo(id: "1") {
+    id
+    title
+    description
+    completed
+    createdAt
+    updatedAt
+    user {
+      username
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> createTodo</h3>
+            <p>Create a new todo</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>title</code>: String! - Title of todo</li>
+                    <li><code>description</code>: String - Optional description</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Todo
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  createTodo(
+    title: "Learn GraphQL", 
+    description: "Complete the GraphQL tutorial"
+  ) {
+    id
+    title
+    description
+    completed
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> updateTodo</h3>
+            <p>Update an existing todo</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>id</code>: ID! - The ID of the todo</li>
+                    <li><code>title</code>: String - Updated title</li>
+                    <li><code>description</code>: String - Updated description</li>
+                    <li><code>completed</code>: Boolean - Updated completion status</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Todo
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  updateTodo(
+    id: "1", 
+    title: "Master GraphQL", 
+    completed: true
+  ) {
+    id
+    title
+    description
+    completed
+    updatedAt
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> deleteTodo</h3>
+            <p>Delete a todo</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>id</code>: ID! - The ID of the todo</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Boolean - Success status
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  deleteTodo(id: "1")
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Chat Functionality</h2>
+
+        <div class="card">
+            <h3><span class="method">Query</span> chatRooms</h3>
+            <p>Get all chat rooms</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="returns">
+                <strong>Returns:</strong> [ChatRoom]
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  chatRooms {
+    id
+    name
+    createdAt
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Query</span> chatRoom</h3>
+            <p>Get a specific chat room by ID</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>id</code>: ID! - The ID of the chat room</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> ChatRoom
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  chatRoom(id: "1") {
+    id
+    name
+    createdAt
+    messages {
+      content
+      createdAt
+      user {
+        username
+      }
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Query</span> messages</h3>
+            <p>Get messages in a chat room</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>roomId</code>: ID! - The ID of the chat room</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> [Message]
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>query {
+  messages(roomId: "1") {
+    id
+    content
+    createdAt
+    user {
+      id
+      username
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> createChatRoom</h3>
+            <p>Create a new chat room</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>name</code>: String! - Name of the chat room</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> ChatRoom
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  createChatRoom(name: "Tech Discussion") {
+    id
+    name
+    createdAt
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Mutation</span> sendMessage</h3>
+            <p>Send a message to a chat room</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>content</code>: String! - Message content</li>
+                    <li><code>roomId</code>: ID! - The ID of the chat room</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Message
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>mutation {
+  sendMessage(
+    content: "Hello everyone!", 
+    roomId: "1"
+  ) {
+    id
+    content
+    createdAt
+    user {
+      username
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3><span class="method">Subscription</span> newMessage</h3>
+            <p>Subscribe to new messages in a chat room</p>
+            <div class="auth-required">Requires authentication</div>
+            <div class="params">
+                <strong>Params:</strong>
+                <ul>
+                    <li><code>roomId</code>: ID! - The ID of the chat room</li>
+                </ul>
+            </div>
+            <div class="returns">
+                <strong>Returns:</strong> Message (streaming)
+            </div>
+            <div class="example">
+                <strong>Example:</strong>
+                <pre><code>subscription {
+  newMessage(roomId: "1") {
+    id
+    content
+    createdAt
+    user {
+      username
+    }
+  }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Error Handling</h2>
+        <p>The API returns standardized error codes:</p>
+        <ul>
+            <li><strong>UNAUTHENTICATED</strong>: You are not logged in or your session is invalid</li>
+            <li><strong>FORBIDDEN</strong>: You don't have permission to perform this action</li>
+            <li><strong>NOT_FOUND</strong>: The requested resource doesn't exist</li>
+            <li><strong>BAD_USER_INPUT</strong>: Invalid input parameters</li>
+            <li><strong>EMAIL_DELIVERY_FAILED</strong>: Could not send verification email</li>
+        </ul>
+        <div class="example">
+            <strong>Example error response:</strong>
+            <pre><code>{
+  "errors": [
+    {
+      "message": "You must be logged in to perform this action",
+      "extensions": {
+        "code": "UNAUTHENTICATED",
+        "http": { "status": 401 }
+      }
+    }
+  ],
+  "data": null
+}</code></pre>
+        </div>
+    </div>
+</body>
+
+</html>

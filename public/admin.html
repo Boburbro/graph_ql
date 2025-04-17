@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Todo Chat App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --info-color: #4895ef;
+            --warning-color: #f72585;
+            --danger-color: #ff4d6d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Nunito', 'Segoe UI', sans-serif;
+            background-color: #f0f2f5;
+            padding-top: 0;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            border-radius: 0.5rem;
+            margin: 0.25rem 1rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .sidebar .nav-link:hover::before {
+            left: 100%;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            border: none;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            height: 100%;
+            transition: transform 0.3s;
+            border-left: 5px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .stat-card.secondary {
+            border-left-color: var(--secondary-color);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .stat-title {
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #495057;
+            border-top: none;
+        }
+
+        .table td,
+        .table th {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .login-container {
+            max-width: 450px;
+            margin: 8% auto;
+        }
+
+        .login-card {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-body {
+            padding: 2.5rem;
+        }
+
+        .login-footer {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .message-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .message-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.75rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--info-color);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-content {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .nav-category {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        /* Responsive fixes */
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 100%;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+            }
+
+            .sidebar .nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .sidebar .nav-link {
+                margin: 0.25rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .sidebar .nav-link:hover {
+                transform: translateX(0) translateY(-2px);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .nav-category {
+                text-align: center;
+                width: 100%;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                margin-top: 1rem;
+                padding-top: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Section -->
+    <div id="login-section" class="container login-container">
+        <div class="login-card card">
+            <div class="login-header">
+                <h3><i class="fas fa-lock me-2"></i>Admin Login</h3>
+                <p class="mb-0">Todo Chat App Administration</p>
+            </div>
+            <div class="login-body">
+                <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <input type="password" class="form-control" id="password" placeholder="Enter password"
+                                required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                </form>
+            </div>
+            <div class="login-footer">
+                <p class="mb-0 text-muted">Use admin/admin for demo access</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar col-lg-2 col-md-3 p-0 ps-3 pe-3">
+            <h4 class="mb-4 ps-2 pt-2"><i class="fas fa-layer-group me-2"></i>Admin Panel</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-target="dashboard-content">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="users-content">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="messages-content">
+                        <i class="fas fa-comments"></i> Messages
+                    </a>
+                </li>
+
+                <li class="nav-item mt-3">
+                    <div class="nav-category">Developer Tools</div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="docs">
+                        <i class="fas fa-book"></i> API Documentation
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-target="graphql">
+                        <i class="fas fa-code"></i> GraphQL Explorer
+                    </a>
+                </li>
+
+                <li class="nav-item mt-3">
+                    <div class="nav-category">System</div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="logout-button">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 id="content-title">Dashboard</h3>
+                <div>
+                    <button id="refresh-data" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div id="content-container">
+                <!-- Dashboard Content -->
+                <div id="dashboard-content" class="content-section">
+                    <div id="stats-loader" class="loader"></div>
+                    <div id="stats-container" class="row" style="display: none;">
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card primary">
+                                <div class="stat-icon"><i class="fas fa-users text-primary"></i></div>
+                                <div class="stat-number" id="total-users">0</div>
+                                <div class="stat-title">Total Users</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card success">
+                                <div class="stat-icon"><i class="fas fa-user-check text-success"></i></div>
+                                <div class="stat-number" id="verified-users">0</div>
+                                <div class="stat-title">Verified Users</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card info">
+                                <div class="stat-icon"><i class="fas fa-tasks text-info"></i></div>
+                                <div class="stat-number" id="total-todos">0</div>
+                                <div class="stat-title">Total Todos</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card warning">
+                                <div class="stat-icon"><i class="fas fa-check-circle text-warning"></i></div>
+                                <div class="stat-number" id="completed-todos">0</div>
+                                <div class="stat-title">Completed Todos</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card danger">
+                                <div class="stat-icon"><i class="fas fa-comments text-danger"></i></div>
+                                <div class="stat-number" id="total-chat-rooms">0</div>
+                                <div class="stat-title">Chat Rooms</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card stat-card secondary">
+                                <div class="stat-icon"><i class="fas fa-envelope text-secondary"></i></div>
+                                <div class="stat-number" id="total-messages">0</div>
+                                <div class="stat-title">Messages</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Content -->
+                <div id="users-content" class="content-section" style="display: none;">
+                    <div id="users-loader" class="loader"></div>
+                    <div id="users-container" class="card" style="display: none;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-users me-2"></i>User Management</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Verified</th>
+                                            <th>Admin</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table">
+                                        <!-- User data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Content - New section -->
+                <div id="messages-content" class="content-section" style="display: none;">
+                    <div id="messages-loader" class="loader"></div>
+                    <div id="messages-container" class="card" style="display: none;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-comments me-2"></i>Messages</span>
+                            <div class="input-group" style="max-width: 300px;">
+                                <select id="chat-room-select" class="form-select">
+                                    <option value="">Select Chat Room</option>
+                                </select>
+                                <button id="load-messages" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="message-list" class="message-container">
+                                <!-- Messages will be loaded here -->
+                                <div class="text-center text-muted py-5">
+                                    Select a chat room to view messages
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API Endpoints
+        const API_URL = '/graphql';
+        let authToken = localStorage.getItem('adminToken');
+
+        // DOM Elements
+        const loginSection = document.getElementById('login-section');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        const refreshDataButton = document.getElementById('refresh-data');
+        const contentTitle = document.getElementById('content-title');
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // Stats elements
+        const statsLoader = document.getElementById('stats-loader');
+        const statsContainer = document.getElementById('stats-container');
+
+        // Users elements
+        const usersLoader = document.getElementById('users-loader');
+        const usersContainer = document.getElementById('users-container');
+        const usersTable = document.getElementById('users-table');
+
+        // Messages elements
+        const messagesLoader = document.getElementById('messages-loader');
+        const messagesContainer = document.getElementById('messages-container');
+        const messageList = document.getElementById('message-list');
+        const chatRoomSelect = document.getElementById('chat-room-select');
+        const loadMessagesButton = document.getElementById('load-messages');
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', initialize);
+        loginForm.addEventListener('submit', handleLogin);
+        logoutButton.addEventListener('click', handleLogout);
+        refreshDataButton.addEventListener('click', refreshData);
+        loadMessagesButton.addEventListener('click', loadMessages);
+
+        // Navigation event listeners
+        navLinks.forEach(link => {
+            if (link.id !== 'logout-button') {
+                link.addEventListener('click', handleNavigation);
+            }
+        });
+
+        // Initialize the application
+        function initialize() {
+            checkAuth();
+        }
+
+        // Handle navigation menu clicks
+        function handleNavigation(event) {
+            event.preventDefault();
+
+            const targetId = event.currentTarget.getAttribute('data-target');
+
+            // Handle external routes
+            if (targetId === 'docs') {
+                window.location.href = '/docs';
+                return;
+            }
+            if (targetId === 'graphql') {
+                window.location.href = '/graphql';
+                return;
+            }
+
+            // Update active state for internal navigation
+            navLinks.forEach(link => link.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Update content title
+            contentTitle.textContent = event.currentTarget.textContent.trim();
+
+            // Show the corresponding content section
+            contentSections.forEach(section => {
+                section.style.display = section.id === targetId ? 'block' : 'none';
+            });
+
+            // Load data for the section if needed
+            if (targetId === 'dashboard-content') {
+                loadStats();
+            } else if (targetId === 'users-content') {
+                loadUsers();
+            } else if (targetId === 'messages-content') {
+                loadChatRooms();
+            }
+        }
+
+        // Refresh data for the current section
+        function refreshData() {
+            const activeSection = document.querySelector('.content-section[style*="display: block"]');
+            if (activeSection) {
+                switch (activeSection.id) {
+                    case 'dashboard-content':
+                        loadStats();
+                        break;
+                    case 'users-content':
+                        loadUsers();
+                        break;
+                    case 'messages-content':
+                        loadChatRooms();
+                        break;
+                }
+            }
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        // Check if the user is already authenticated
+        async function checkAuth() {
+            if (!authToken) {
+                showLoginPage();
+                return;
+            }
+
+            try {
+                // Special handling for admin/admin credentials
+                if (authToken === 'admin-access-token') {
+                    showAdminDashboard();
+                    loadStats();
+                    return;
+                }
+
+                const query = `
+                    query {
+                        me {
+                            id
+                            email
+                            username
+                            isAdmin
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors || !data.data.me) {
+                    localStorage.removeItem('adminToken');
+                    showLoginPage();
+                    return;
+                }
+
+                showAdminDashboard();
+                loadStats();
+
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                localStorage.removeItem('adminToken');
+                showLoginPage();
+            }
+        }
+
+        // Show login page
+        function showLoginPage() {
+            loginSection.style.display = 'block';
+            adminDashboard.style.display = 'none';
+        }
+
+        // Show admin dashboard
+        function showAdminDashboard() {
+            loginSection.style.display = 'none';
+            adminDashboard.style.display = 'block';
+        }
+
+        // Handle login form submission
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            loginError.style.display = 'none';
+
+            try {
+                const query = `
+                    mutation {
+                        adminLogin(username: "${username}", password: "${password}") {
+                            token
+                            success
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                if (!data.data.adminLogin.success) {
+                    throw new Error('Invalid admin credentials');
+                }
+
+                // Store the token and show admin dashboard
+                authToken = data.data.adminLogin.token;
+                localStorage.setItem('adminToken', authToken);
+
+                showAdminDashboard();
+                loadStats();
+
+            } catch (error) {
+                loginError.textContent = error.message;
+                loginError.style.display = 'block';
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('adminToken');
+            showLoginPage();
+        }
+
+        // Load dashboard statistics
+        async function loadStats() {
+            statsLoader.style.display = 'block';
+            statsContainer.style.display = 'none';
+
+            try {
+                // Check if using admin token
+                if (authToken === 'admin-access-token') {
+                    // Generate mock statistics for demo
+                    setTimeout(() => {
+                        document.getElementById('total-users').textContent = '15';
+                        document.getElementById('verified-users').textContent = '12';
+                        document.getElementById('total-todos').textContent = '47';
+                        document.getElementById('completed-todos').textContent = '28';
+                        document.getElementById('total-chat-rooms').textContent = '5';
+                        document.getElementById('total-messages').textContent = '158';
+
+                        statsLoader.style.display = 'none';
+                        statsContainer.style.display = 'flex';
+                    }, 500);
+                    return;
+                }
+
+                const query = `
+                    query {
+                        adminStats {
+                            totalUsers
+                            verifiedUsers
+                            totalTodos
+                            completedTodos
+                            totalChatRooms
+                            totalMessages
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                const stats = data.data.adminStats;
+
+                document.getElementById('total-users').textContent = stats.totalUsers;
+                document.getElementById('verified-users').textContent = stats.verifiedUsers;
+                document.getElementById('total-todos').textContent = stats.totalTodos;
+                document.getElementById('completed-todos').textContent = stats.completedTodos;
+                document.getElementById('total-chat-rooms').textContent = stats.totalChatRooms;
+                document.getElementById('total-messages').textContent = stats.totalMessages;
+
+                statsLoader.style.display = 'none';
+                statsContainer.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+
+                // Show default values on error
+                document.getElementById('total-users').textContent = '0';
+                document.getElementById('verified-users').textContent = '0';
+                document.getElementById('total-todos').textContent = '0';
+                document.getElementById('completed-todos').textContent = '0';
+                document.getElementById('total-chat-rooms').textContent = '0';
+                document.getElementById('total-messages').textContent = '0';
+
+                statsLoader.style.display = 'none';
+                statsContainer.style.display = 'flex';
+            }
+        }
+
+        // Load users for management
+        async function loadUsers() {
+            usersLoader.style.display = 'block';
+            usersContainer.style.display = 'none';
+
+            try {
+                // Check if using admin token
+                if (authToken === 'admin-access-token') {
+                    // Generate mock users for demo
+                    setTimeout(() => {
+                        usersTable.innerHTML = '';
+
+                        const mockUsers = [
+                            { id: 1, username: 'johndoe', email: 'john@example.com', isVerified: true, isAdmin: false, createdAt: new Date().toISOString() },
+                            { id: 2, username: 'janesmith', email: 'jane@example.com', isVerified: true, isAdmin: true, createdAt: new Date().toISOString() },
+                            { id: 3, username: 'bobsmith', email: 'bob@example.com', isVerified: false, isAdmin: false, createdAt: new Date().toISOString() },
+                            { id: 4, username: 'boburotaboyev0', email: 'boburotaboyev0@gmail.com', isVerified: true, isAdmin: true, createdAt: new Date().toISOString() }
+                        ];
+
+                        mockUsers.forEach(user => addUserToTable(user));
+
+                        // Add event listeners for admin toggles and delete buttons
+                        document.querySelectorAll('.admin-toggle').forEach(button => {
+                            button.addEventListener('click', mockToggleAdminStatus);
+                        });
+
+                        document.querySelectorAll('.delete-user').forEach(button => {
+                            button.addEventListener('click', mockDeleteUser);
+                        });
+
+                        usersLoader.style.display = 'none';
+                        usersContainer.style.display = 'block';
+                    }, 500);
+                    return;
+                }
+
+                const query = `
+                    query {
+                        allUsers {
+                            id
+                            username
+                            email
+                            isVerified
+                            isAdmin
+                            createdAt
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                const users = data.data.allUsers;
+
+                // Clear table
+                usersTable.innerHTML = '';
+
+                // Add users to table
+                users.forEach(user => addUserToTable(user));
+
+                // Add event listeners for admin toggles and delete buttons
+                document.querySelectorAll('.admin-toggle').forEach(button => {
+                    button.addEventListener('click', toggleAdminStatus);
+                });
+
+                document.querySelectorAll('.delete-user').forEach(button => {
+                    button.addEventListener('click', deleteUser);
+                });
+
+                usersLoader.style.display = 'none';
+                usersContainer.style.display = 'block';
+
+            } catch (error) {
+                console.error('Failed to load users:', error);
+
+                // Show empty state on error
+                usersTable.innerHTML = '<tr><td colspan="7" class="text-center py-4"><i class="fas fa-exclamation-circle me-2"></i>Failed to load users</td></tr>';
+                usersLoader.style.display = 'none';
+                usersContainer.style.display = 'block';
+            }
+        }
+
+        // Add a user to the users table
+        function addUserToTable(user) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.username || '-'}</td>
+                <td>${user.email}</td>
+                <td>
+                    <span class="badge ${user.isVerified ? 'bg-success' : 'bg-danger'}">
+                        ${user.isVerified ? 'Yes' : 'No'}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge ${user.isAdmin ? 'bg-warning' : 'bg-secondary'}">
+                        ${user.isAdmin ? 'Yes' : 'No'}
+                    </span>
+                </td>
+                <td>${formatDate(user.createdAt)}</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary admin-toggle" data-user-id="${user.id}" data-is-admin="${user.isAdmin}">
+                            <i class="fas fa-user-shield me-1"></i>${user.isAdmin ? 'Remove Admin' : 'Make Admin'}
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger delete-user" data-user-id="${user.id}">
+                            <i class="fas fa-trash-alt me-1"></i>Delete
+                        </button>
+                    </div>
+                </td>
+            `;
+            usersTable.appendChild(row);
+        }
+
+        // Load chat rooms for the messages section
+        async function loadChatRooms() {
+            messagesLoader.style.display = 'block';
+            messagesContainer.style.display = 'none';
+
+            try {
+                // Check if using admin token
+                if (authToken === 'admin-access-token') {
+                    // Generate mock chat rooms for demo
+                    setTimeout(() => {
+                        chatRoomSelect.innerHTML = '<option value="">Select Chat Room</option>';
+
+                        const mockRooms = [
+                            { id: 1, name: 'General Chat' },
+                            { id: 2, name: 'Technical Support' },
+                            { id: 3, name: 'Random Discussions' },
+                            { id: 4, name: 'Project Collaboration' },
+                            { id: 5, name: 'Announcements' }
+                        ];
+
+                        mockRooms.forEach(room => {
+                            const option = document.createElement('option');
+                            option.value = room.id;
+                            option.textContent = room.name;
+                            chatRoomSelect.appendChild(option);
+                        });
+
+                        messagesLoader.style.display = 'none';
+                        messagesContainer.style.display = 'block';
+                    }, 500);
+                    return;
+                }
+
+                const query = `
+                    query {
+                        chatRooms {
+                            id
+                            name
+                            createdAt
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                const rooms = data.data.chatRooms;
+
+                // Clear select
+                chatRoomSelect.innerHTML = '<option value="">Select Chat Room</option>';
+
+                // Add rooms to select
+                rooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id;
+                    option.textContent = room.name;
+                    chatRoomSelect.appendChild(option);
+                });
+
+                messagesLoader.style.display = 'none';
+                messagesContainer.style.display = 'block';
+
+            } catch (error) {
+                console.error('Failed to load chat rooms:', error);
+
+                // Show empty state on error
+                chatRoomSelect.innerHTML = '<option value="">No chat rooms available</option>';
+                messageList.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-exclamation-circle me-2"></i>Failed to load chat rooms</div>';
+
+                messagesLoader.style.display = 'none';
+                messagesContainer.style.display = 'block';
+            }
+        }
+
+        // Load messages for a selected chat room
+        async function loadMessages() {
+            const roomId = chatRoomSelect.value;
+
+            if (!roomId) {
+                messageList.innerHTML = '<div class="text-center text-muted py-5">Select a chat room to view messages</div>';
+                return;
+            }
+
+            messageList.innerHTML = '<div class="loader"></div>';
+
+            try {
+                // Check if using admin token
+                if (authToken === 'admin-access-token') {
+                    // Generate mock messages for demo
+                    setTimeout(() => {
+                        messageList.innerHTML = '';
+
+                        const mockMessages = [
+                            { id: 1, content: 'Hello everyone!', createdAt: new Date().toISOString(), user: { username: 'johndoe', email: 'john@example.com' } },
+                            { id: 2, content: 'Welcome to the chat room!', createdAt: new Date(Date.now() - 3600000).toISOString(), user: { username: 'janesmith', email: 'jane@example.com' } },
+                            { id: 3, content: 'How is everyone doing today?', createdAt: new Date(Date.now() - 7200000).toISOString(), user: { username: 'bobsmith', email: 'bob@example.com' } },
+                            { id: 4, content: 'I\'m having an issue with my todo list. Can someone help?', createdAt: new Date(Date.now() - 10800000).toISOString(), user: { username: 'johndoe', email: 'john@example.com' } },
+                            { id: 5, content: 'Sure, what seems to be the problem?', createdAt: new Date(Date.now() - 14400000).toISOString(), user: { username: 'janesmith', email: 'jane@example.com' } }
+                        ];
+
+                        if (mockMessages.length === 0) {
+                            messageList.innerHTML = '<div class="text-center text-muted py-5">No messages in this chat room</div>';
+                            return;
+                        }
+
+                        mockMessages.forEach(message => {
+                            const messageEl = createMessageElement(message);
+                            messageList.appendChild(messageEl);
+                        });
+                    }, 500);
+                    return;
+                }
+
+                const query = `
+                    query {
+                        messages(roomId: "${roomId}") {
+                            id
+                            content
+                            createdAt
+                            user {
+                                id
+                                username
+                                email
+                            }
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                const messages = data.data.messages;
+
+                // Clear message list
+                messageList.innerHTML = '';
+
+                if (messages.length === 0) {
+                    messageList.innerHTML = '<div class="text-center text-muted py-5">No messages in this chat room</div>';
+                    return;
+                }
+
+                // Add messages to list
+                messages.forEach(message => {
+                    const messageEl = createMessageElement(message);
+                    messageList.appendChild(messageEl);
+                });
+
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+                messageList.innerHTML = '<div class="text-center text-danger py-5"><i class="fas fa-exclamation-circle me-2"></i>Failed to load messages</div>';
+            }
+        }
+
+        // Create a message element
+        function createMessageElement(message) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message-item';
+
+            const initials = message.user.username ? message.user.username.substring(0, 2).toUpperCase() : 'U';
+
+            messageEl.innerHTML = `
+                <div class="d-flex align-items-start">
+                    <div class="user-avatar">${initials}</div>
+                    <div class="flex-grow-1">
+                        <div class="message-header">
+                            <strong>${message.user.username || message.user.email}</strong>
+                            <small class="text-muted">${formatDate(message.createdAt)}</small>
+                        </div>
+                        <div class="message-content">${message.content}</div>
+                    </div>
+                </div>
+            `;
+
+            return messageEl;
+        }
+
+        // Mock functions for admin login
+        function mockToggleAdminStatus(event) {
+            const userId = event.currentTarget.dataset.userId;
+            const isCurrentlyAdmin = event.currentTarget.dataset.isAdmin === 'true';
+
+            if (!confirm(`Are you sure you want to ${isCurrentlyAdmin ? 'remove' : 'grant'} admin privileges for this user?`)) {
+                return;
+            }
+
+            // Update the UI
+            const row = event.currentTarget.closest('tr');
+            const badge = row.querySelector('td:nth-child(5) .badge');
+
+            if (isCurrentlyAdmin) {
+                badge.classList.replace('bg-warning', 'bg-secondary');
+                badge.textContent = 'No';
+                event.currentTarget.innerHTML = '<i class="fas fa-user-shield me-1"></i>Make Admin';
+                event.currentTarget.dataset.isAdmin = 'false';
+            } else {
+                badge.classList.replace('bg-secondary', 'bg-warning');
+                badge.textContent = 'Yes';
+                event.currentTarget.innerHTML = '<i class="fas fa-user-shield me-1"></i>Remove Admin';
+                event.currentTarget.dataset.isAdmin = 'true';
+            }
+        }
+
+        function mockDeleteUser(event) {
+            const userId = event.currentTarget.dataset.userId;
+
+            if (!confirm('WARNING: This will permanently delete the user and all their data. Are you sure?')) {
+                return;
+            }
+
+            // Remove the row from the table
+            event.currentTarget.closest('tr').remove();
+        }
+
+        // Real functions for authenticated users
+        async function toggleAdminStatus(event) {
+            const userId = event.currentTarget.dataset.userId;
+            const isCurrentlyAdmin = event.currentTarget.dataset.isAdmin === 'true';
+
+            if (!confirm(`Are you sure you want to ${isCurrentlyAdmin ? 'remove' : 'grant'} admin privileges for this user?`)) {
+                return;
+            }
+
+            try {
+                const query = `
+                    mutation {
+                        setAdminStatus(userId: "${userId}", isAdmin: ${!isCurrentlyAdmin}) {
+                            id
+                            email
+                            isAdmin
+                        }
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                // Update the UI
+                const row = event.currentTarget.closest('tr');
+                const badge = row.querySelector('td:nth-child(5) .badge');
+
+                if (isCurrentlyAdmin) {
+                    badge.classList.replace('bg-warning', 'bg-secondary');
+                    badge.textContent = 'No';
+                    event.currentTarget.innerHTML = '<i class="fas fa-user-shield me-1"></i>Make Admin';
+                    event.currentTarget.dataset.isAdmin = 'false';
+                } else {
+                    badge.classList.replace('bg-secondary', 'bg-warning');
+                    badge.textContent = 'Yes';
+                    event.currentTarget.innerHTML = '<i class="fas fa-user-shield me-1"></i>Remove Admin';
+                    event.currentTarget.dataset.isAdmin = 'true';
+                }
+
+            } catch (error) {
+                console.error('Failed to toggle admin status:', error);
+                alert('Failed to update admin status: ' + error.message);
+            }
+        }
+
+        async function deleteUser(event) {
+            const userId = event.currentTarget.dataset.userId;
+
+            if (!confirm('WARNING: This will permanently delete the user and all their data. Are you sure?')) {
+                return;
+            }
+
+            try {
+                const query = `
+                    mutation {
+                        deleteUser(userId: "${userId}")
+                    }
+                `;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+
+                if (data.errors) {
+                    throw new Error(data.errors[0].message);
+                }
+
+                // Remove the row from the table
+                event.currentTarget.closest('tr').remove();
+
+                // Refresh stats
+                loadStats();
+
+            } catch (error) {
+                console.error('Failed to delete user:', error);
+                alert('Failed to delete user: ' + error.message);
+            }
+        }
+    </script>
+</body>
+
+</html>
