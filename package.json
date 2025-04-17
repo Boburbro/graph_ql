@@ -10,6 +10,9 @@
         "generate": "prisma generate",
         "seed": "node prisma/seed.js"
     },
+    "prisma": {
+        "seed": "node prisma/seed.js"
+    },
     "dependencies": {
         "@apollo/explorer": "^3.7.2",
         "@apollo/server": "^4.9.5",

@@ -11,6 +11,15 @@ services:
       DATABASE_URL: 'postgresql://postgres:postgres@postgres:5432/todochat?schema=public'
       JWT_SECRET: 'your-secret-key-here'
       PORT: 4000
+      EMAIL_HOST: 'smtp.gmail.com'
+      EMAIL_PORT: 587
+      EMAIL_SECURE: 'false'
+      EMAIL_USER: 'assoftuz@gmail.com'
+      EMAIL_PASSWORD: 'goje kwnw xvdm qhug'
+      EMAIL_FROM: 'Todo Chat App <assoftuz@gmail.com>'
+    dns:
+      - 8.8.8.8  # Google DNS
+      - 8.8.4.4  # Google DNS backup
     command: >
       sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
 
