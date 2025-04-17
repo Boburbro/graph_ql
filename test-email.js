@@ -3,8 +3,8 @@ const nodemailer = require('nodemailer');
 // Create transporter
 const transporter = nodemailer.createTransport({
     host: '142.250.102.108', // Direct IP for smtp.gmail.com
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true, // Use SSL
     requireTLS: true,
     name: 'smtp.gmail.com', // Required when using direct IP
     auth: {
@@ -36,7 +36,7 @@ async function testEmail() {
         console.log('Verifying SMTP connection...');
         const verify = await transporter.verify();
         console.log('SMTP connection verified:', verify);
-        
+
         console.log('Attempting to send test email...');
         const result = await transporter.sendMail({
             from: '"Todo Chat App" <assoftuz@gmail.com>',
@@ -44,7 +44,7 @@ async function testEmail() {
             subject: "Test Email",
             text: "If you receive this, the email configuration is working!"
         });
-        
+
         console.log('Message sent successfully!');
         console.log('Message ID:', result.messageId);
     } catch (error) {
