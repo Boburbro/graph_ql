@@ -18,8 +18,12 @@ services:
       EMAIL_PASSWORD: 'goje kwnw xvdm qhug'
       EMAIL_FROM: 'Todo Chat App <assoftuz@gmail.com>'
     dns:
-      - 8.8.8.8  # Google DNS
-      - 8.8.4.4  # Google DNS backup
+      - 8.8.8.8
+      - 8.8.4.4
+    extra_hosts:
+      - "smtp.gmail.com:142.251.1.108"
+    networks:
+      - app-network
     command: >
       sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
 
@@ -33,6 +37,12 @@ services:
       POSTGRES_DB: todochat
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres-data: 

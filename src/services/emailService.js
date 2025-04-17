@@ -15,18 +15,24 @@ async function setupTransporter() {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
+            requireTLS: true,
+            tls: {
+                rejectUnauthorized: false,
+                minVersion: "TLSv1.2"
+            },
             // Add connection timeout settings
             connectionTimeout: 10000, // 10 seconds
             greetingTimeout: 10000,   // 10 seconds
             socketTimeout: 15000,     // 15 seconds
             // Add debug for troubleshooting
             debug: true,
+            logger: true,
             // Add retry configuration
             pool: true,
             maxConnections: 5,
             maxMessages: 100,
             rateDelta: 1000,
-            rateLimit: 5,
+            rateLimit: 5
         });
 
         // Verify connection configuration
@@ -85,6 +91,7 @@ async function sendVerificationEmail(email, verificationCode, retryCount = 3) {
     };
 
     try {
+        console.log('Attempting to send verification email...');
         const info = await transporter.sendMail(mailOptions);
 
         // For development with Ethereal
@@ -93,11 +100,17 @@ async function sendVerificationEmail(email, verificationCode, retryCount = 3) {
             console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         } else {
             console.log('Verification email sent to %s with Gmail', email);
+            console.log('Message ID:', info.messageId);
         }
 
         return info;
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('Error details:', {
+            code: error.code,
+            command: error.command,
+            message: error.message,
+            stack: error.stack
+        });
 
         // Retry logic
         if (retryCount > 0) {
