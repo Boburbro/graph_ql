@@ -6,7 +6,7 @@ let transporter;
 async function setupTransporter() {
     // Check if Gmail configuration is available
     if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-        // Use Gmail
+        // Use Gmail with enhanced configuration
         transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST,
             port: process.env.EMAIL_PORT || 587,
@@ -15,9 +15,28 @@ async function setupTransporter() {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASSWORD,
             },
+            // Add connection timeout settings
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 10000,   // 10 seconds
+            socketTimeout: 15000,     // 15 seconds
+            // Add debug for troubleshooting
+            debug: true,
+            // Add retry configuration
+            pool: true,
+            maxConnections: 5,
+            maxMessages: 100,
+            rateDelta: 1000,
+            rateLimit: 5,
         });
-        
-        console.log(`Email service configured with ${process.env.EMAIL_HOST} for ${process.env.EMAIL_USER}`);
+
+        // Verify connection configuration
+        try {
+            await transporter.verify();
+            console.log(`Email service configured successfully with ${process.env.EMAIL_HOST} for ${process.env.EMAIL_USER}`);
+        } catch (error) {
+            console.error('Failed to verify email configuration:', error);
+            throw error;
+        }
     } else {
         // For development - use ethereal.email (fake SMTP service)
         const testAccount = await nodemailer.createTestAccount();
@@ -41,8 +60,8 @@ function generateVerificationCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send verification email
-async function sendVerificationEmail(email, verificationCode) {
+// Send verification email with retries
+async function sendVerificationEmail(email, verificationCode, retryCount = 3) {
     if (!transporter) {
         await setupTransporter();
     }
@@ -67,7 +86,7 @@ async function sendVerificationEmail(email, verificationCode) {
 
     try {
         const info = await transporter.sendMail(mailOptions);
-        
+
         // For development with Ethereal
         if (!process.env.EMAIL_HOST) {
             console.log('Verification email sent: %s', info.messageId);
@@ -75,10 +94,19 @@ async function sendVerificationEmail(email, verificationCode) {
         } else {
             console.log('Verification email sent to %s with Gmail', email);
         }
-        
+
         return info;
     } catch (error) {
         console.error('Error sending email:', error);
+
+        // Retry logic
+        if (retryCount > 0) {
+            console.log(`Retrying... ${retryCount} attempts remaining`);
+            // Wait for 2 seconds before retrying
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return sendVerificationEmail(email, verificationCode, retryCount - 1);
+        }
+
         throw error;
     }
 }
